@@ -24,7 +24,7 @@ import sys
 from dataclasses import dataclass, field
 from typing import Optional
 
-from datasets import load_dataset, load_metric
+from datasets import load_dataset, load_metric, DatasetDict
 
 import transformers
 from trainer_qa import QuestionAnsweringTrainer
@@ -262,6 +262,7 @@ def main():
     if data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
         datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name)
+        datasets = DatasetDict({"train": datasets[0], "validation": datasets[1]})
     else:
         data_files = {}
         if data_args.train_file is not None:
