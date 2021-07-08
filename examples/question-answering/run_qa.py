@@ -591,9 +591,6 @@ def main():
 
     def compute_metrics(p: EvalPrediction):
         return metric.compute(predictions=p.predictions, references=p.label_ids)
-
-    # Initialize our Trainer
-    training_args["eval_accumulation_steps"] = 16
     
     trainer = QuestionAnsweringTrainer(
         model=model,
