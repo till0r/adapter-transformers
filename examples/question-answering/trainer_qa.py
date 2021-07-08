@@ -59,6 +59,9 @@ class QuestionAnsweringTrainer(Trainer):
             eval_dataset.set_format(type=eval_dataset.format["type"], columns=list(eval_dataset.features.keys()))
 
         if self.post_process_function is not None and self.compute_metrics is not None:
+            # Reduce Bart Outputs by one dimension:
+            relevant_predictions = (output.predictions[0], output.predictions[1])
+            
             eval_preds = self.post_process_function(eval_examples, eval_dataset, output.predictions)
             metrics = self.compute_metrics(eval_preds)
 
