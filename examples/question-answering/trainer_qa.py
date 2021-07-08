@@ -62,7 +62,7 @@ class QuestionAnsweringTrainer(Trainer):
             # Reduce Bart Outputs by one dimension:
             relevant_predictions = (output.predictions[0], output.predictions[1])
             
-            eval_preds = self.post_process_function(eval_examples, eval_dataset, output.predictions)
+            eval_preds = self.post_process_function(eval_examples, eval_dataset, relevant_predictions)
             metrics = self.compute_metrics(eval_preds)
 
             self.log(metrics)
