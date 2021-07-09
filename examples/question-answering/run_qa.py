@@ -686,10 +686,15 @@ def main():
         direction="maximize", 
         backend="optuna", 
         hp_space=my_hp_space_optuna,
-        n_trials=3,
+        n_trials=1,
     )
    
-    print(best_run)
+    # Redefine training args with results from best run of HP search
+    print(training_args.learning_rate)
+    best_run_hp = best_run["hyperparameters"]
+    training_args.learning_rate = best_run_hp["learning_rate"]
+    print(best_run_hp["learning_rate"])
+    print(training_args.learning_rate)
     
 #     # Populate training args with best HP search results
 #     trainer = QuestionAnsweringTrainer(
