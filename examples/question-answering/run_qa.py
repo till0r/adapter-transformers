@@ -673,9 +673,9 @@ def main():
     )
 
     # Tuning Hyperparameters
-    def my_hp_space_ray(trial):
+    def my_hp_space_optuna(trial):
         return {
-            "learning_rate": tune.choice([1e-4, 1e-3, 1e-2]),
+            "learning_rate": trial.suggest_float("learning_rate", 1e-5,1e-2,log=True),
 #             "num_train_epochs": tune.choice(range(1, 6)),
 #             "seed": tune.choice(range(1, 41)),
 #             "per_device_train_batch_size": tune.choice([4, 8, 16, 32, 64]),
@@ -683,8 +683,10 @@ def main():
     
     trainer.hyperparameter_search(
         direction="maximize", 
-        backend="ray", 
-        hp_space=my_hp_space_ray,
+        backend="optuna", 
+        hp_space=my_hp_space_optuna,
+        n_trials=10,
+        gc_after_trial=True,
     )
     
     # Training
