@@ -686,7 +686,7 @@ def main():
         direction="maximize", 
         backend="optuna", 
         hp_space=my_hp_space_optuna,
-        n_trials=1,
+        n_trials=3,
     )
 
     best_run_hp = best_run.hyperparameters
