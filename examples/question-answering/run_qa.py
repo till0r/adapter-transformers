@@ -675,63 +675,81 @@ def main():
     # Tuning Hyperparameters
     def my_hp_space_optuna(trial):
         return {
-            "learning_rate": trial.suggest_float("learning_rate", 1e-5,1e-2,log=True),
+            "learning_rate": trial.suggest_categorical("learning_rate",[1e-4,1e-3,1e-2],log=True),
 #             "num_train_epochs": tune.choice(range(1, 6)),
 #             "seed": tune.choice(range(1, 41)),
 #             "per_device_train_batch_size": tune.choice([4, 8, 16, 32, 64]),
         }
     
-    trainer.hyperparameter_search(
+    best_run = trainer.hyperparameter_search(
         direction="maximize", 
         backend="optuna", 
         hp_space=my_hp_space_optuna,
-        n_trials=5,
+        n_trials=3,
     )
+   
+    print(best_run)
     
-    # Training
-    if training_args.do_train:
-        if last_checkpoint is not None:
-            checkpoint = last_checkpoint
-        elif os.path.isdir(model_args.model_name_or_path):
-            checkpoint = model_args.model_name_or_path
-        else:
-            checkpoint = None
-        train_result = trainer.train(resume_from_checkpoint=checkpoint)
-        trainer.save_model()  # Saves the tokenizer too for easy upload
+#     # Populate training args with best HP search results
+#     trainer = QuestionAnsweringTrainer(
+#         model=model,
+#         model_init=model_init,
+#         args=training_args,
+#         train_dataset=train_dataset if training_args.do_train else None,
+#         eval_dataset=eval_dataset if training_args.do_eval else None,
+#         eval_examples=eval_examples if training_args.do_eval else None,
+#         tokenizer=tokenizer,
+#         data_collator=data_collator,
+#         post_process_function=post_processing_function,
+#         compute_metrics=compute_metrics,
+#         do_save_full_model=not adapter_args.train_adapter,
+#         do_save_adapters=adapter_args.train_adapter,
+#     )
+    
+#     # Training
+#     if training_args.do_train:
+#         if last_checkpoint is not None:
+#             checkpoint = last_checkpoint
+#         elif os.path.isdir(model_args.model_name_or_path):
+#             checkpoint = model_args.model_name_or_path
+#         else:
+#             checkpoint = None
+#         train_result = trainer.train(resume_from_checkpoint=checkpoint)
+#         trainer.save_model()  # Saves the tokenizer too for easy upload
 
-        metrics = train_result.metrics
-        max_train_samples = (
-            data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
-        )
-        metrics["train_samples"] = min(max_train_samples, len(train_dataset))
+#         metrics = train_result.metrics
+#         max_train_samples = (
+#             data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
+#         )
+#         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
 
-        trainer.log_metrics("train", metrics)
-        trainer.save_metrics("train", metrics)
-        trainer.save_state()
+#         trainer.log_metrics("train", metrics)
+#         trainer.save_metrics("train", metrics)
+#         trainer.save_state()
 
-    # Evaluation
-    if training_args.do_eval:
-        logger.info("*** Evaluate ***")
-        metrics = trainer.evaluate()
+#     # Evaluation
+#     if training_args.do_eval:
+#         logger.info("*** Evaluate ***")
+#         metrics = trainer.evaluate()
 
-        max_val_samples = data_args.max_val_samples if data_args.max_val_samples is not None else len(eval_dataset)
-        metrics["eval_samples"] = min(max_val_samples, len(eval_dataset))
+#         max_val_samples = data_args.max_val_samples if data_args.max_val_samples is not None else len(eval_dataset)
+#         metrics["eval_samples"] = min(max_val_samples, len(eval_dataset))
 
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
-        return metrics
+#         trainer.log_metrics("eval", metrics)
+#         trainer.save_metrics("eval", metrics)
+#         return metrics
 
-    # Prediction
-    if training_args.do_predict:
-        logger.info("*** Predict ***")
-        results = trainer.predict(test_dataset, test_examples)
-        metrics = results.metrics
+#     # Prediction
+#     if training_args.do_predict:
+#         logger.info("*** Predict ***")
+#         results = trainer.predict(test_dataset, test_examples)
+#         metrics = results.metrics
 
-        max_test_samples = data_args.max_test_samples if data_args.max_test_samples is not None else len(test_dataset)
-        metrics["test_samples"] = min(max_test_samples, len(test_dataset))
+#         max_test_samples = data_args.max_test_samples if data_args.max_test_samples is not None else len(test_dataset)
+#         metrics["test_samples"] = min(max_test_samples, len(test_dataset))
 
-        trainer.log_metrics("test", metrics)
-        trainer.save_metrics("test", metrics)
+#         trainer.log_metrics("test", metrics)
+#         trainer.save_metrics("test", metrics)
 
 
 def _mp_fn(index):
