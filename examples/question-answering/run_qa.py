@@ -17,7 +17,7 @@
 Fine-tuning the library models for question answering.
 """
 # You can also adapt this script on your own question answering task. Pointers for this are left as comments.
-
+from ray import tune
 import logging
 import os
 import sys
@@ -607,6 +607,21 @@ def main():
         do_save_adapters=adapter_args.train_adapter,
     )
 
+    # Tuning Hyperparameters
+    def my_hp_space_ray(trial):
+        return {
+            "learning_rate": tune.choice([1e-4, 1e-3, 1e-2]),
+#             "num_train_epochs": tune.choice(range(1, 6)),
+#             "seed": tune.choice(range(1, 41)),
+#             "per_device_train_batch_size": tune.choice([4, 8, 16, 32, 64]),
+        }
+    
+    trainer.hyperparameter_search(
+        direction="maximize", 
+        backend="ray", 
+        hp_space=my_hp_space_ray,
+    )
+    
     # Training
     if training_args.do_train:
         if last_checkpoint is not None:
