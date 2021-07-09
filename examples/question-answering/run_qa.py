@@ -658,7 +658,6 @@ def main():
         return model
     
     trainer = QuestionAnsweringTrainer(
-        model=model,
         model_init=model_init,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
@@ -685,10 +684,28 @@ def main():
         direction="maximize", 
         backend="optuna", 
         hp_space=my_hp_space_optuna,
-        n_trials=3,
+        n_trials=1,
     )
-   
-    print(best_run)
+    
+    # Redefine training args with results from best run of HP search
+    best_run_hp = best_run["hyperparameters"]
+    training_args.learning_rate = best_run_hp["learning_rate"]
+        
+        
+#     trainer = QuestionAnsweringTrainer(
+#         model=model,
+#         model_init=model_init,
+#         args=training_args,
+#         train_dataset=train_dataset if training_args.do_train else None,
+#         eval_dataset=eval_dataset if training_args.do_eval else None,
+#         eval_examples=eval_examples if training_args.do_eval else None,
+#         tokenizer=tokenizer,
+#         data_collator=data_collator,
+#         post_process_function=post_processing_function,
+#         compute_metrics=compute_metrics,
+#         do_save_full_model=not adapter_args.train_adapter,
+#         do_save_adapters=adapter_args.train_adapter,
+#     )
     
 #     # Populate training args with best HP search results
 #     trainer = QuestionAnsweringTrainer(
