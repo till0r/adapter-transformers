@@ -685,8 +685,7 @@ def main():
         direction="maximize", 
         backend="optuna", 
         hp_space=my_hp_space_optuna,
-        n_trials=10,
-        gc_after_trial=True,
+        n_trials=5,
     )
     
     # Training
