@@ -658,6 +658,7 @@ def main():
         return model
     
     trainer = QuestionAnsweringTrainer(
+        model=model,
         model_init=model_init,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
@@ -674,7 +675,7 @@ def main():
     # Tuning Hyperparameters
     def my_hp_space_optuna(trial):
         return {
-            "learning_rate": trial.suggest_categorical("learning_rate",[1e-4,1e-3]),
+            "learning_rate": trial.suggest_categorical("learning_rate",[1e-4,1e-3,1e-2]),
 #             "num_train_epochs": tune.choice(range(1, 6)),
 #             "seed": tune.choice(range(1, 41)),
 #             "per_device_train_batch_size": tune.choice([4, 8, 16, 32, 64]),
@@ -684,15 +685,15 @@ def main():
         direction="maximize", 
         backend="optuna", 
         hp_space=my_hp_space_optuna,
-        n_trials=2,
+        n_trials=3,
     )
     
-    # Redefine training args with results from best run of HP search
-    print(training_args.learning_rate)
-    best_run_hp = best_run["hyperparameters"]
-    training_args.learning_rate = best_run_hp["learning_rate"]
-    print(best_run_hp["learning_rate"])
-    print(training_args.learning_rate)
+#     # Redefine training args with results from best run of HP search
+#     print(training_args.learning_rate)
+#     best_run_hp = best_run["hyperparameters"]
+#     training_args.learning_rate = best_run_hp["learning_rate"]
+#     print(best_run_hp["learning_rate"])
+#     print(training_args.learning_rate)
         
         
 #     trainer = QuestionAnsweringTrainer(
