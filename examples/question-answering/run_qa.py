@@ -692,7 +692,6 @@ def main():
     best_run_hp = best_run.hyperparameters
     # Redefine training args with results from best run of HP search
     print(training_args.learning_rate)
-    best_run_hp = best_run["hyperparameters"]
     training_args.learning_rate = best_run_hp["learning_rate"]
     print(best_run_hp["learning_rate"])
     print(training_args.learning_rate)
