@@ -674,7 +674,7 @@ def main():
     # Tuning Hyperparameters
     def my_hp_space_optuna(trial):
         return {
-            "learning_rate": trial.suggest_categorical("learning_rate",[1e-4,1e-3,1e-2]),
+            "learning_rate": trial.suggest_categorical("learning_rate",[1e-4,1e-3]),
 #             "num_train_epochs": tune.choice(range(1, 6)),
 #             "seed": tune.choice(range(1, 41)),
 #             "per_device_train_batch_size": tune.choice([4, 8, 16, 32, 64]),
@@ -684,7 +684,7 @@ def main():
         direction="maximize", 
         backend="optuna", 
         hp_space=my_hp_space_optuna,
-        n_trials=1,
+        n_trials=2,
     )
     
     # Redefine training args with results from best run of HP search
