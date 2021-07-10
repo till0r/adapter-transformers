@@ -682,7 +682,7 @@ def main():
             "per_device_train_batch_size":trial.suggest_categorical("per_device_train_batch_size",[8,16]),
             "num_train_epochs":trial.suggest_categorical("num_train_epochs",[5,10,15]),
             "warmup_ratio":trial.suggest_categorical("warmup_ratio",[0,0.1,0.2]),
-            "lr_scheduler_type":trial.suggest_categorical("lr_scheduler_type", [SchedulerType.LINEAR, SchedulerType.COSINE]),
+            "lr_scheduler_type":trial.suggest_categorical("lr_scheduler_type", [SchedulerType.LINEAR, SchedulerType.COSINE, SchedulerType.COSINE_WITH_RESTARTS]),
         }
     
     best_run = trainer.hyperparameter_search(
