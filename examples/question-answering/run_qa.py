@@ -42,6 +42,7 @@ from transformers import (
     TrainingArguments,
     default_data_collator,
     set_seed,
+    SchedulerType,
 )
 from transformers.adapters.composition import Fuse
 from transformers.trainer_utils import get_last_checkpoint, is_main_process
@@ -681,7 +682,7 @@ def main():
             "per_device_train_batch_size":trial.suggest_categorical("per_device_train_batch_size",[8,16]),
             "num_train_epochs":trial.suggest_categorical("num_train_epochs",[5,10,15]),
             "warmup_ratio":trial.suggest_categorical("warmup_ratio",[0,0.1,0.2]),
-            "lr_scheduler_type":trial.suggest_categorical("lr_scheduler_type", [“linear”, “cosine”, “cosine_with_restarts”, “constant_with_warmup”]),
+            "lr_scheduler_type":trial.suggest_categorical("lr_scheduler_type", [SchedulerType.LINEAR, SchedulerType.COSINE]),
         }
     
     best_run = trainer.hyperparameter_search(
