@@ -263,7 +263,7 @@ def main():
     # download the dataset.
     if data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
-        datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name, split=['train[:1%]', 'validation[:1%]'])
+        datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name, split=['train[:2%]', 'validation[:2%]'])
         datasets = DatasetDict({"train": datasets[0], "validation": datasets[1]})
     else:
         data_files = {}
@@ -281,86 +281,86 @@ def main():
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
-    # Load pretrained model and tokenizer
-    #
-    # Distributed training:
-    # The .from_pretrained methods guarantee that only one local process can concurrently
-    # download model & vocab.
-    config = AutoConfig.from_pretrained(
-        model_args.config_name if model_args.config_name else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
-        use_fast=True,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
-    model = AutoModelForQuestionAnswering.from_pretrained(
-        model_args.model_name_or_path,
-        from_tf=bool(".ckpt" in model_args.model_name_or_path),
-        config=config,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
+#     # Load pretrained model and tokenizer
+#     #
+#     # Distributed training:
+#     # The .from_pretrained methods guarantee that only one local process can concurrently
+#     # download model & vocab.
+#     config = AutoConfig.from_pretrained(
+#         model_args.config_name if model_args.config_name else model_args.model_name_or_path,
+#         cache_dir=model_args.cache_dir,
+#         revision=model_args.model_revision,
+#         use_auth_token=True if model_args.use_auth_token else None,
+#     )
+#     tokenizer = AutoTokenizer.from_pretrained(
+#         model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
+#         cache_dir=model_args.cache_dir,
+#         use_fast=True,
+#         revision=model_args.model_revision,
+#         use_auth_token=True if model_args.use_auth_token else None,
+#     )
+#     model = AutoModelForQuestionAnswering.from_pretrained(
+#         model_args.model_name_or_path,
+#         from_tf=bool(".ckpt" in model_args.model_name_or_path),
+#         config=config,
+#         cache_dir=model_args.cache_dir,
+#         revision=model_args.model_revision,
+#         use_auth_token=True if model_args.use_auth_token else None,
+#     )
 
-    # Tokenizer check: this script requires a fast tokenizer.
-    if not isinstance(tokenizer, PreTrainedTokenizerFast):
-        raise ValueError(
-            "This example script only works for models that have a fast tokenizer. Checkout the big table of models "
-            "at https://huggingface.co/transformers/index.html#bigtable to find the model types that meet this "
-            "requirement"
-        )
+#     # Tokenizer check: this script requires a fast tokenizer.
+#     if not isinstance(tokenizer, PreTrainedTokenizerFast):
+#         raise ValueError(
+#             "This example script only works for models that have a fast tokenizer. Checkout the big table of models "
+#             "at https://huggingface.co/transformers/index.html#bigtable to find the model types that meet this "
+#             "requirement"
+#         )
 
-    # Setup adapters
-    if adapter_args.train_adapter:
-        task_name = data_args.dataset_name or "squad"
-        # check if adapter already exists otherwise add it
-        if task_name not in model.config.adapters:
-            # resolve adapter config
-            adapter_config = AdapterConfig.load(
-                adapter_args.adapter_config,
-                non_linearity=adapter_args.adapter_non_linearity,
-                reduction_factor=adapter_args.adapter_reduction_factor,
-            )
-            # load adapter from hub if specified
-            if adapter_args.load_adapter:
-                model.load_adapter(adapter_args.load_adapter, config=adapter_config, load_as=task_name)
-            else:
-                model.add_adapter(task_name, config=adapter_config)
-        # optionally load  a pretrained language adapter
-        if adapter_args.load_lang_adapter:
-            # resolve language adapter config
-            lang_adapter_config = AdapterConfig.load(
-                adapter_args.lang_adapter_config,
-                non_linearity=adapter_args.lang_adapter_non_linearity,
-                reduction_factor=adapter_args.lang_adapter_reduction_factor,
-            )
-            # load language adapter from Hub
-            lang_adapter_name = model.load_adapter(
-                adapter_args.load_lang_adapter,
-                config=lang_adapter_config,
-                load_as=adapter_args.language,
-            )
-        else:
-            lang_adapter_name = None
-        # Freeze all model weights except of those in this adapter
-        model.train_adapter(task_name)
-        # Set the adapters to be used in every forward pass
-        if lang_adapter_name:
-            model.set_active_adapters(Fuse(lang_adapter_name, task_name))
-        else:
-            model.set_active_adapters(task_name)
-    else:
-        if adapter_args.load_adapter or adapter_args.load_lang_adapter:
-            raise ValueError(
-                "Adapters can only be loaded in adapters training mode."
-                "Use --train_adapter to enable adapter_training"
-            )
+#     # Setup adapters
+#     if adapter_args.train_adapter:
+#         task_name = data_args.dataset_name or "squad"
+#         # check if adapter already exists otherwise add it
+#         if task_name not in model.config.adapters:
+#             # resolve adapter config
+#             adapter_config = AdapterConfig.load(
+#                 adapter_args.adapter_config,
+#                 non_linearity=adapter_args.adapter_non_linearity,
+#                 reduction_factor=adapter_args.adapter_reduction_factor,
+#             )
+#             # load adapter from hub if specified
+#             if adapter_args.load_adapter:
+#                 model.load_adapter(adapter_args.load_adapter, config=adapter_config, load_as=task_name)
+#             else:
+#                 model.add_adapter(task_name, config=adapter_config)
+#         # optionally load  a pretrained language adapter
+#         if adapter_args.load_lang_adapter:
+#             # resolve language adapter config
+#             lang_adapter_config = AdapterConfig.load(
+#                 adapter_args.lang_adapter_config,
+#                 non_linearity=adapter_args.lang_adapter_non_linearity,
+#                 reduction_factor=adapter_args.lang_adapter_reduction_factor,
+#             )
+#             # load language adapter from Hub
+#             lang_adapter_name = model.load_adapter(
+#                 adapter_args.load_lang_adapter,
+#                 config=lang_adapter_config,
+#                 load_as=adapter_args.language,
+#             )
+#         else:
+#             lang_adapter_name = None
+#         # Freeze all model weights except of those in this adapter
+#         model.train_adapter(task_name)
+#         # Set the adapters to be used in every forward pass
+#         if lang_adapter_name:
+#             model.set_active_adapters(Fuse(lang_adapter_name, task_name))
+#         else:
+#             model.set_active_adapters(task_name)
+#     else:
+#         if adapter_args.load_adapter or adapter_args.load_lang_adapter:
+#             raise ValueError(
+#                 "Adapters can only be loaded in adapters training mode."
+#                 "Use --train_adapter to enable adapter_training"
+#             )
     # Preprocessing the datasets.
     # Preprocessing is slighlty different for training and evaluation.
     if training_args.do_train:
