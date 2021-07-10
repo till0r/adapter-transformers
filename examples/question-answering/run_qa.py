@@ -677,9 +677,9 @@ def main():
     def my_hp_space_optuna(trial):
         return {
             "learning_rate": trial.suggest_categorical("learning_rate",[1e-4,1e-3,1e-2]),
-#             "num_train_epochs": tune.choice(range(1, 6)),
-#             "seed": tune.choice(range(1, 41)),
-#             "per_device_train_batch_size": tune.choice([4, 8, 16, 32, 64]),
+            "seed":trial.suggest_categorical("seed", [25,38,42,87]),
+            "per_device_train_batch_size":trial.suggest_categorical("per_device_train_batch_size",[8,16]),
+            "num_train_epochs":trial.suggest_categorical("num_train_epochs",[5,10,15]),
         }
     
     best_run = trainer.hyperparameter_search(
@@ -692,16 +692,15 @@ def main():
     best_run_hp = best_run.hyperparameters
     # Redefine training args with results from best run of HP search
     training_args.learning_rate = best_run_hp["learning_rate"]
-#     training_args.num_train_epochs = best_run_hp["num_train_epochs"]
-#     training_args.seed = best_run_hp["seed"]
-#     training_args.per_device_train_batch_size = best_run_hp["per_device_train_batch_size"]
+    training_args.num_train_epochs = best_run_hp["num_train_epochs"]
+    training_args.seed = best_run_hp["seed"]
+    training_args.per_device_train_batch_size = best_run_hp["per_device_train_batch_size"]
 #     training_args.lr_scheduler_type = best_run_hp["lr_scheduler_type"]
 #     training_args.warmup_ratio = best_run_hp["warmup_ratio"]
 
     
     # Populate training args with best HP search results
     trainer = QuestionAnsweringTrainer(
-        model=model,
         model_init=model_init,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
