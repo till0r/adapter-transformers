@@ -263,8 +263,13 @@ def main():
     # download the dataset.
     if data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
-        datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name, split=['train[:2%]', 'validation[:2%]'])
-        datasets = DatasetDict({"train": datasets[0], "validation": datasets[1]})
+#         datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name, split=['train[:2%]', 'validation[:2%]'])
+#         datasets = DatasetDict({"train": datasets[0], "validation": datasets[1]})
+        
+        
+        datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name)
+        datasets = datasets.shuffle(seed=42)  
+        datasets = DatasetDict({"train": datasets["train"], "validation": datasets["validation"]})
     else:
         data_files = {}
         if data_args.train_file is not None:
