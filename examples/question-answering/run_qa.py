@@ -261,8 +261,7 @@ def main():
     # download the dataset.
     if data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
-        datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name, split=['train[:1%]', 'validation[:1%]'])
-        datasets = DatasetDict({"train": datasets[0], "validation": datasets[1]})
+        datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name)
     else:
         data_files = {}
         if data_args.train_file is not None:
